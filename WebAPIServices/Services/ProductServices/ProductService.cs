@@ -11,6 +11,27 @@ namespace WebAPIServices.Services.ProductServices
         private readonly DataContext _context;
         private IMemoryCache _cache;
 
+        private string SerializeProductList(List<ProductDto> products)
+        {
+            return JsonConvert.SerializeObject(products);
+        }
+
+        private List<ProductDto> DeserializeProductList(string serializedData)
+        {
+            return JsonConvert.DeserializeObject<List<ProductDto>>(serializedData);
+        }
+
+
+        private void InvalidateCache(string key)
+        {
+            _cache.Remove(key);
+        }
+
+        public void SetCache(IMemoryCache memoryCache)
+        {
+            _cache = memoryCache;
+        }
+
         public ProductService(DataContext context, IMemoryCache cache)
         {
             _context = context;
@@ -116,25 +137,7 @@ namespace WebAPIServices.Services.ProductServices
         }
 
 
-        private string SerializeProductList(List<ProductDto> products)
-        {
-            return JsonConvert.SerializeObject(products);
-        }
-
-        private List<ProductDto> DeserializeProductList(string serializedData)
-        {
-            return JsonConvert.DeserializeObject<List<ProductDto>>(serializedData);
-        }
-
-        private void InvalidateCache(string key)
-        {
-            _cache.Remove(key);
-        }
-
-        public void SetCache(IMemoryCache memoryCache)
-        {
-            _cache = memoryCache;
-        }
+        
 
             
         

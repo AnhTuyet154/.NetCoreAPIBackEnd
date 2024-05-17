@@ -36,6 +36,7 @@ namespace WebAPIServices.Controllers
             return Ok(category);
         }
 
+
         [HttpPost]
         public async Task<ActionResult<CategoryDto>> AddCategory(CreateCategoryDto categoryDto)
         {

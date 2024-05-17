@@ -1,7 +1,5 @@
 ﻿using WebAPIServices.Data;
 using WebAPIServices.Dto.Category;
-using WebAPIServices.Dto.Product;
-using WebAPIServices.Models;
 using WebAPIServices.Mapers; 
 using WebAPIServices.Services.SuperHeroService;
 
@@ -50,7 +48,7 @@ namespace WebAPIServices.Services.SellerServices
         public async Task<CategoryDto> GetSingleCategoryAsync(int id)
         {
             var category = await _context.Categories
-                                        .Include(c => c.Products) // Bao gồm dữ liệu sản phẩm
+                                        .Include(c => c.Products)
                                         .FirstOrDefaultAsync(c => c.Id == id);
             if (category != null)
             {
@@ -58,6 +56,7 @@ namespace WebAPIServices.Services.SellerServices
             }
             return null;
         }
+
 
         public async Task<CategoryDto> UpdateCategoryAsync(int id, UpdateCategoryDto category)
         {
