@@ -1,20 +1,17 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace WebAPIServices.Models.DTO
+namespace WebAPIServices.Dto.Product
 {
-    public class ProductDto
-    { 
-        public int Id { get; set; }
-
+    public class UpdateProductDto
+    {
         [Required(ErrorMessage = "Name is required.")]
         public string? Name { get; set; }
 
         [Required(ErrorMessage = "Price is required.")]
         [Range(0, double.MaxValue, ErrorMessage = "Price must be a positive number.")]
-        public int Price { get; set; }
-
+        public double Price { get; set; }
         [Required(ErrorMessage = "Category is required.")]
-        public string? Category { get; set; }
+        public int? CategoryId { get; set; }
 
         [Required(ErrorMessage = "Color is required.")]
         public string? Color { get; set; }

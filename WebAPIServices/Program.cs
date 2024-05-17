@@ -1,26 +1,31 @@
-global using WebAPIServices.Models;
-using Microsoft.Extensions.Caching.Memory;
+﻿using Microsoft.Extensions.Caching.Memory;
+using WebAPIServices.Data;
 using WebAPIServices.Services.ProductServices;
 using WebAPIServices.Services.SellerServices;
 using WebAPIServices.Services.SuperHeroService;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddDbContext<DataContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+});
+
+
 builder.Services.AddScoped<IProductService, ProductService>();
-builder.Services.AddScoped<ISellerService, SellerService>();
+builder.Services.AddScoped<ICategoryrService, CategoryService>();
 var cache = new MemoryCache(new MemoryCacheOptions());
 builder.Services.AddSingleton<IMemoryCache>(cache);
 
-builder.Services.AddSingleton<IProductService>(provider =>
+builder.Services.AddScoped<IProductService, ProductService>(provider =>
 {
-    var productService = new ProductService();
-    productService.SetCache(provider.GetRequiredService<IMemoryCache>());
-    return productService;
+    var context = provider.GetRequiredService<DataContext>();
+    var cache = provider.GetRequiredService<IMemoryCache>();
+    return new ProductService(context, cache);
 });
 
 
@@ -34,6 +39,16 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Thêm middleware logging vào pipeline
+app.Use(async (context, next) =>
+{
+    // Xử lý trước khi gọi middleware tiếp theo
+    Console.WriteLine($"Request: {context.Request.Path}");
+    await next.Invoke();
+    // Xử lý sau khi gọi middleware tiếp theo
+    Console.WriteLine($"Response: {context.Response.StatusCode}");
+});
 
 app.UseAuthorization();
 

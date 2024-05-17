@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using WebAPIServices.Models.DTO;
+using WebAPIServices.Dto.Product;
 using WebAPIServices.Services.ProductServices;
+using WebAPIServices.Mapers; // Thêm namespace này
 
 namespace WebAPIServices.Controllers
 {
@@ -32,9 +33,8 @@ namespace WebAPIServices.Controllers
             }
             return Ok(result);
         }
-
         [HttpPost]
-        public async Task<ActionResult<List<ProductDto>>> AddProduct(ProductDto productDto)
+        public async Task<ActionResult<List<ProductDto>>> AddProduct(CreateProductDto productDto)
         {
             if (!ModelState.IsValid)
             {
@@ -51,7 +51,7 @@ namespace WebAPIServices.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<List<ProductDto>>> UpdateProduct(int id, ProductDto productDto)
+        public async Task<ActionResult<List<ProductDto>>> UpdateProduct(int id, UpdateProductDto productDto)
         {
             if (!ModelState.IsValid)
             {

@@ -1,103 +1,116 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
-using WebAPIServices.Models.DTO;
+using WebAPIServices.Data;
+using WebAPIServices.Dto.Product;
+using WebAPIServices.Mapers;
 
 namespace WebAPIServices.Services.ProductServices
 {
     public class ProductService : IProductService
     {
-        private IMemoryCache? _cache;
+        private readonly DataContext _context;
+        private IMemoryCache _cache;
 
-        public void SetCache(IMemoryCache memoryCache)
+        public ProductService(DataContext context, IMemoryCache cache)
         {
-            _cache = memoryCache;
-        }
-        private static List<ProductDto> products = new List<ProductDto>
-        {
-            new ProductDto{
-                Id=1,
-                Name = "Laptop HP Omen 16",
-                Price=37290,
-                Category = "Laptop",
-                Color = "black",
-                Description="HP Omen 16 laptop n0087AX R7 ",
-                Image= "https://www.omen.com/content/dam/sites/omen/worldwide/laptops/hero-banner-desktop-i7-3-new-image.png"
-            },
-            new ProductDto{
-                Id=2,
-                Name = "Laptop Apple MacBook Air",
-                Price=37290,
-                Category = "Laptop",
-                Color = "yellow",
-                Description="13 inch M2 16GB/512GB/10GPU (Z15Z0003L) ",
-                Image= "https://tse4.mm.bing.net/th?id=OIP.Gugj6FOZ22QOi6iH2rTQSgHaE8&pid=Api&P=0&h=180g"
-            }
-        };
-
-
-        public async Task<List<ProductDto>> AddProductAsync(ProductDto productDto)
-        {
-            if (productDto != null)
-            {
-                products.Add(productDto);
-            }
-            return await Task.FromResult(products);
-        }
-
-
-        public async Task<List<ProductDto>> DeleteProductAsync(int id)
-        {
-            var product = products.Find(x => x.Id == id);
-            if (product != null)
-            {
-                products.Remove(product);
-            }
-            return await Task.FromResult(products);
+            _context = context;
+            _cache = cache;
         }
 
         public async Task<List<ProductDto>> GetAllProductsAsync()
         {
-            var cachedData = _cache?.Get<string>("all_products");
+            var cachedData = _cache.Get<string>("all_products");
             if (cachedData != null)
             {
                 return DeserializeProductList(cachedData);
             }
 
-            var productList = await Task.FromResult(products);
-            _cache?.Set("all_products", SerializeProductList(productList), TimeSpan.FromMinutes(10));
+            var productList = await _context.Products
+                .Include(p => p.Category)
+                .Select(p => p.ToProductDto())
+                .ToListAsync();
+
+            _cache.Set("all_products", SerializeProductList(productList), TimeSpan.FromMinutes(10));
             return productList;
-            //return await Task.FromResult(products);
         }
 
         public async Task<ProductDto> GetSingleProductAsync(int id)
         {
-            var cachedData = _cache?.Get<string>($"product_{id}");
+            var cachedData = _cache.Get<string>($"product_{id}");
             if (cachedData != null)
             {
                 return DeserializeProductList(cachedData).FirstOrDefault(x => x.Id == id);
             }
 
-            var product = await Task.FromResult(products.FirstOrDefault(x => x.Id == id)); // Đổi tên biến cục bộ thành product
-            _cache?.Set($"product_{id}", SerializeProductList(new List<ProductDto> { product }), TimeSpan.FromMinutes(10));
+            var product = await _context.Products
+                .Include(p => p.Category)
+                .Where(p => p.Id == id)
+                .Select(p => p.ToProductDto())
+                .FirstOrDefaultAsync();
+
+            if (product != null)
+            {
+                _cache.Set($"product_{id}", SerializeProductList(new List<ProductDto> { product }), TimeSpan.FromMinutes(10));
+            }
             return product;
-            //return await Task.FromResult(products.FirstOrDefault(x => x.Id == id));
         }
 
-        public async Task<List<ProductDto>> UpdateProductAsync(int id, ProductDto request)
+        public async Task<List<ProductDto>> DeleteProductAsync(int id)
         {
-            var product = products.Find(x => x.Id == id);
-            if (product == null)
+            var product = await _context.Products.FindAsync(id);
+            if (product != null)
+            {
+                _context.Products.Remove(product);
+                await _context.SaveChangesAsync();
+                InvalidateCache("all_products");
+            }
+            return await GetAllProductsAsync();
+        }
+
+        public async Task<List<ProductDto>> AddProductAsync(CreateProductDto productDto)
+        {
+            if (productDto.CategoryId == null)
             {
                 return null;
             }
-            product.Name = request.Name;
-            product.Price = request.Price;
-            product.Category = request.Category;
-            product.Color = request.Color;
-            product.Image = request.Image;
-            product.Description = request.Description;
-            return await Task.FromResult(products);
+
+            var category = await _context.Categories.FindAsync(productDto.CategoryId);
+            if (category == null)
+            {
+                return null;
+            }
+
+            var newProduct = productDto.ToProductFromCreate(productDto.CategoryId.Value);
+
+            _context.Products.Add(newProduct);
+            await _context.SaveChangesAsync();
+            InvalidateCache("all_products");
+            return await GetAllProductsAsync();
         }
+        public async Task<List<ProductDto>> UpdateProductAsync(int id, UpdateProductDto request)
+        {
+            var product = await _context.Products.FindAsync(id);
+            if (product != null)
+            {
+                if (request.CategoryId == null)
+                {
+                    return null; 
+                }
+
+                var category = await _context.Categories.FindAsync(request.CategoryId.Value);
+                if (category == null)
+                {
+                    return null; 
+                }
+
+                product = request.ToProductFromUpdate(request.CategoryId.Value);
+
+                await _context.SaveChangesAsync();
+                InvalidateCache("all_products");
+            }
+            return await GetAllProductsAsync();
+        }
+
         private string SerializeProductList(List<ProductDto> products)
         {
             return JsonConvert.SerializeObject(products);
@@ -107,6 +120,19 @@ namespace WebAPIServices.Services.ProductServices
         {
             return JsonConvert.DeserializeObject<List<ProductDto>>(serializedData);
         }
+
+        private void InvalidateCache(string key)
+        {
+            _cache.Remove(key);
+        }
+
+        public void SetCache(IMemoryCache memoryCache)
+        {
+            _cache = memoryCache;
+        }
+
+            
+        
 
     }
 }
