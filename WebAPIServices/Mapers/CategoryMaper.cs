@@ -1,4 +1,5 @@
 ﻿using WebAPIServices.Dto.Category;
+using WebAPIServices.Dto.Product;
 using WebAPIServices.Models;
 
 namespace WebAPIServices.Mapers
@@ -12,7 +13,8 @@ namespace WebAPIServices.Mapers
                 Id = categoryModel.Id,
                 Name = categoryModel.Name,
                 Description = categoryModel.Description,
-                Products = categoryModel.Products.Select(c => c.ToProductDto()).ToList(),
+                //Products = categoryModel.Products.Select(c => c.ToProductDto()).ToList(),
+                Products = categoryModel.Products != null ? categoryModel.Products.Select(c => c.ToProductDto()).ToList() : new List<ProductDto>()
             };
         }
 
@@ -25,13 +27,12 @@ namespace WebAPIServices.Mapers
             };
         }
 
-        public static Category ToCategoryFromUpdateDTO(this UpdateCategoryDto categoryDto)
+        public static Category ToCategoryFromUpdateDTO(this UpdateCategoryDto categoryDto, Category category)
         {
-            return new Category
-            {
-                Name = categoryDto.Name,
-                Description = categoryDto.Description,
-            };
+            category.Name = categoryDto.Name;
+            category.Description = categoryDto.Description;
+            return category;
+            
         }
     }
 }

@@ -49,7 +49,6 @@ namespace WebAPIServices.Controllers
             var result = await _productService.AddProductAsync(productDto);
             return Ok(result);
         }
-
         [HttpPut("{id}")]
         public async Task<ActionResult<List<ProductDto>>> UpdateProduct(int id, UpdateProductDto productDto)
         {
@@ -66,7 +65,7 @@ namespace WebAPIServices.Controllers
             var result = await _productService.UpdateProductAsync(id, productDto);
             if (result == null)
             {
-                return NotFound("Product not found");
+                return NotFound("Product or Category not found");
             }
             return Ok(result);
         }

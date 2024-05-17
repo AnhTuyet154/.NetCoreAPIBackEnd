@@ -19,7 +19,10 @@ namespace WebAPIServices.Data
             modelBuilder.Entity<Category>()
                 .HasMany(c => c.Products)
                 .WithOne(p => p.Category)
-                .HasForeignKey(p => p.CategoryId);
+                .HasForeignKey(p => p.CategoryId)
+                .OnDelete(DeleteBehavior.Restrict);
+            //.OnDelete(DeleteBehavior.SetNull);
+            //OnDelete(DeleteBehavior.Cascade)
         }
     }
 }

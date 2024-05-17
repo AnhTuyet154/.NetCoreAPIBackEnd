@@ -33,18 +33,18 @@ namespace WebAPIServices.Mapers
             };
         }
 
-        public static Product ToProductFromUpdate(this UpdateProductDto productDto, int categoryId)
+        public static Product ToProductFromUpdate(this UpdateProductDto productDto, Product product, int categoryId)
         {
-            return new Product
-            {
-                Name = productDto.Name,
-                Price = productDto.Price,
-                CategoryId = categoryId,            
-                Color = productDto.Color,
-                Image = productDto.Image,
-                Description = productDto.Description
-            };
+            product.Name = productDto.Name;
+            product.Price = productDto.Price;
+            product.CategoryId = categoryId;
+            product.Color = productDto.Color;
+            product.Image = productDto.Image;
+            product.Description = productDto.Description;
+
+            return product;
         }
+
 
     }
 }

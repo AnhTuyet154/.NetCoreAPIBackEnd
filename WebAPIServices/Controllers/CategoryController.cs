@@ -46,6 +46,7 @@ namespace WebAPIServices.Controllers
 
             var addedCategory = await _categoryService.AddCategoryAsync(categoryDto);
             return Ok(addedCategory);
+
         }
 
         [HttpPut("{id}")]
@@ -64,6 +65,7 @@ namespace WebAPIServices.Controllers
 
             return Ok(updatedCategory);
         }
+
 
         [HttpDelete("{id}")]
         public async Task<ActionResult<List<CategoryDto>>> DeleteCategory(int id)

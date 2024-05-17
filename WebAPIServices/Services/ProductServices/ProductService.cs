@@ -90,26 +90,31 @@ namespace WebAPIServices.Services.ProductServices
         public async Task<List<ProductDto>> UpdateProductAsync(int id, UpdateProductDto request)
         {
             var product = await _context.Products.FindAsync(id);
-            if (product != null)
+            if (product == null)
             {
-                if (request.CategoryId == null)
-                {
-                    return null; 
-                }
-
-                var category = await _context.Categories.FindAsync(request.CategoryId.Value);
-                if (category == null)
-                {
-                    return null; 
-                }
-
-                product = request.ToProductFromUpdate(request.CategoryId.Value);
-
-                await _context.SaveChangesAsync();
-                InvalidateCache("all_products");
+                return null; // Product not found
             }
+
+            if (request.CategoryId == null)
+            {
+                return null; // CategoryId is required
+            }
+
+            var category = await _context.Categories.FindAsync(request.CategoryId.Value);
+            if (category == null)
+            {
+                return null; // Category not found
+            }
+
+            // Use mapper to update product
+            product = request.ToProductFromUpdate(product, request.CategoryId.Value);
+
+            await _context.SaveChangesAsync();
+            InvalidateCache("all_products");
+
             return await GetAllProductsAsync();
         }
+
 
         private string SerializeProductList(List<ProductDto> products)
         {

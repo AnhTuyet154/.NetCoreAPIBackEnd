@@ -49,7 +49,9 @@ namespace WebAPIServices.Services.SellerServices
 
         public async Task<CategoryDto> GetSingleCategoryAsync(int id)
         {
-            var category = await _context.Categories.FindAsync(id);
+            var category = await _context.Categories
+                                        .Include(c => c.Products) // Bao gồm dữ liệu sản phẩm
+                                        .FirstOrDefaultAsync(c => c.Id == id);
             if (category != null)
             {
                 return category.ToCategoryDto();
