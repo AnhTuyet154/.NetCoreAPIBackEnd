@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-using WebAPIServices.Dto.Product;
+﻿using WebAPIServices.Dto.Product;
 
 namespace WebAPIServices.Services.ProductServices
 {
@@ -10,6 +9,5 @@ namespace WebAPIServices.Services.ProductServices
         Task<List<ProductDto>> AddProductAsync(CreateProductDto productDto);
         Task<List<ProductDto>> UpdateProductAsync(int id, UpdateProductDto productDto);
         Task<List<ProductDto>> DeleteProductAsync(int id);
-        void SetCache(IMemoryCache memoryCache);
     }
 }

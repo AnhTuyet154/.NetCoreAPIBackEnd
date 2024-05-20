@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WebAPIServices.Dto.Category;
-using WebAPIServices.Services.SuperHeroService;
-using WebAPIServices.Mapers;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.OutputCaching;
+using WebAPIServices.Services.CategoryServices;
 
 namespace WebAPIServices.Controllers
 {

@@ -1,6 +1,6 @@
 ﻿using WebAPIServices.Dto.Category;
 
-namespace WebAPIServices.Services.SuperHeroService
+namespace WebAPIServices.Services.CategoryServices
 {
     public interface ICategoryrService
     {

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using WebAPIServices.Dto.Product;
 using WebAPIServices.Services.ProductServices;
-using WebAPIServices.Mapers; // Thêm namespace này
 
 namespace WebAPIServices.Controllers
 {
@@ -20,7 +20,8 @@ namespace WebAPIServices.Controllers
         public async Task<ActionResult<List<ProductDto>>> GetAllProducts()
         {
             var products = await _productService.GetAllProductsAsync();
-            return Ok(products);
+            var jsonStr = JsonConvert.SerializeObject(products);
+            return Ok(jsonStr);
         }
 
         [HttpGet("{id}")]

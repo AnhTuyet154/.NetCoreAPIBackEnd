@@ -1,9 +1,8 @@
 ﻿using WebAPIServices.Data;
 using WebAPIServices.Dto.Category;
-using WebAPIServices.Mapers; 
-using WebAPIServices.Services.SuperHeroService;
+using WebAPIServices.Mapers;
 
-namespace WebAPIServices.Services.SellerServices
+namespace WebAPIServices.Services.CategoryServices
 {
     public class CategoryService : ICategoryrService
     {

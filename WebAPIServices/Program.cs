@@ -1,8 +1,7 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-using WebAPIServices.Data;
+﻿using WebAPIServices.Data;
+using WebAPIServices.Services.CategoryServices;
 using WebAPIServices.Services.ProductServices;
-using WebAPIServices.Services.SellerServices;
-using WebAPIServices.Services.SuperHeroService;
+using Microsoft.Net.Http.Headers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,16 +20,6 @@ builder.Services.AddControllers().AddNewtonsoftJson(options =>
 
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICategoryrService, CategoryService>();
-var cache = new MemoryCache(new MemoryCacheOptions());
-builder.Services.AddSingleton<IMemoryCache>(cache);
-
-builder.Services.AddScoped<IProductService, ProductService>(provider =>
-{
-    var context = provider.GetRequiredService<DataContext>();
-    var cache = provider.GetRequiredService<IMemoryCache>();
-    return new ProductService(context, cache);
-});
-
 
 var app = builder.Build();
 
@@ -43,14 +32,23 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// Thêm middleware logging vào pipeline
+// Thêm middleware Response Caching vào pipeline
+app.UseResponseCaching();
+
+// Configure the response cache middleware
 app.Use(async (context, next) =>
 {
-    // Xử lý trước khi gọi middleware tiếp theo
-    Console.WriteLine($"Request: {context.Request.Path}");
-    await next.Invoke();
-    // Xử lý sau khi gọi middleware tiếp theo
-    Console.WriteLine($"Response: {context.Response.StatusCode}");
+    // Xác định các yêu cầu mà bạn muốn cache (ví dụ: tất cả các phản hồi thành công)
+    if (context.Request.Method == HttpMethods.Get && context.Response.StatusCode == StatusCodes.Status200OK)
+    {
+        context.Response.GetTypedHeaders().CacheControl = new CacheControlHeaderValue
+        {
+            Public = true, // Cacheable by clients and shared (proxy caching)
+            MaxAge = TimeSpan.FromMinutes(5) // Thời gian sống của cache
+        };
+    }
+
+    await next();
 });
 
 app.UseAuthorization();
