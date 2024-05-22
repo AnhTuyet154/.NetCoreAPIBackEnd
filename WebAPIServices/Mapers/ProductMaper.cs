@@ -12,7 +12,8 @@ namespace WebAPIServices.Mapers
                 Id = product.Id,
                 Name = product.Name,
                 Price = product.Price,
-                CategoryId = product.CategoryId,
+               // CategoryId = product.CategoryId,
+                CategoryName = product.Category?.Name,
                 Color = product.Color,
                 Image = product.Image,
                 Description = product.Description

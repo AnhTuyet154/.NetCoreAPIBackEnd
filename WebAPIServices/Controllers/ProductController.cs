@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using WebAPIServices.Dto.Product;
 using WebAPIServices.Services.ProductServices;
 
@@ -20,8 +19,7 @@ namespace WebAPIServices.Controllers
         public async Task<ActionResult<List<ProductDto>>> GetAllProducts()
         {
             var products = await _productService.GetAllProductsAsync();
-            var jsonStr = JsonConvert.SerializeObject(products);
-            return Ok(jsonStr);
+            return Ok(products);
         }
 
         [HttpGet("{id}")]
@@ -34,6 +32,7 @@ namespace WebAPIServices.Controllers
             }
             return Ok(result);
         }
+
         [HttpPost]
         public async Task<ActionResult<List<ProductDto>>> AddProduct(CreateProductDto productDto)
         {
@@ -48,8 +47,13 @@ namespace WebAPIServices.Controllers
             }
 
             var result = await _productService.AddProductAsync(productDto);
+            if (result == null)
+            {
+                return BadRequest("Invalid category ID.");
+            }
             return Ok(result);
         }
+
         [HttpPut("{id}")]
         public async Task<ActionResult<List<ProductDto>>> UpdateProduct(int id, UpdateProductDto productDto)
         {

@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.EntityFrameworkCore;
 using WebAPIServices.Data;
 using WebAPIServices.Dto.Product;
 using WebAPIServices.Mapers;
@@ -66,7 +66,7 @@ namespace WebAPIServices.Services.ProductServices
             return await GetAllProductsAsync();
         }
 
-        public async Task<List<ProductDto>> UpdateProductAsync(int id, UpdateProductDto request)
+        public async Task<List<ProductDto>> UpdateProductAsync(int id, UpdateProductDto productDto)
         {
             var product = await _context.Products.FindAsync(id);
             if (product == null)
@@ -74,19 +74,18 @@ namespace WebAPIServices.Services.ProductServices
                 return null;
             }
 
-            if (request.CategoryId == null)
+            if (productDto.CategoryId == null)
             {
                 return null;
             }
 
-            var category = await _context.Categories.FindAsync(request.CategoryId.Value);
+            var category = await _context.Categories.FindAsync(productDto.CategoryId.Value);
             if (category == null)
             {
                 return null;
             }
 
-            // Use mapper to update product
-            product = request.ToProductFromUpdate(product, request.CategoryId.Value);
+            product = productDto.ToProductFromUpdate(product, productDto.CategoryId.Value);
 
             await _context.SaveChangesAsync();
             return await GetAllProductsAsync();
