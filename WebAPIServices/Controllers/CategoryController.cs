@@ -2,6 +2,7 @@
 using WebAPIServices.Dto.Category;
 using Microsoft.AspNetCore.OutputCaching;
 using WebAPIServices.Services.CategoryServices;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebAPIServices.Controllers
 {

@@ -16,7 +16,7 @@ namespace WebAPIServices.Services.CategoryServices
         public async Task<CategoryDto> AddCategoryAsync(CreateCategoryDto category)
         {
             var newCategory = category.ToCategoryFromCreateDTO();
-
+            //category.GetHashCode
             _context.Categories.Add(newCategory);
             await _context.SaveChangesAsync();
 
