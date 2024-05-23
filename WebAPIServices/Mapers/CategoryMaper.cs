@@ -1,10 +1,12 @@
-﻿using WebAPIServices.Dto.Category;
+﻿using System.Collections.Generic;
+using System.Linq;
+using WebAPIServices.Dto.Category;
 using WebAPIServices.Dto.Product;
 using WebAPIServices.Models;
 
-namespace WebAPIServices.Mapers
+namespace WebAPIServices.Mappers
 {
-    public static class CategoryMaper
+    public static class CategoryMapper
     {
         public static CategoryDto ToCategoryDto(this Category categoryModel)
         {
@@ -13,7 +15,6 @@ namespace WebAPIServices.Mapers
                 Id = categoryModel.Id,
                 Name = categoryModel.Name,
                 Description = categoryModel.Description,
-                //Products = categoryModel.Products.Select(c => c.ToProductDto()).ToList(),
                 Products = categoryModel.Products != null ? categoryModel.Products.Select(c => c.ToProductDto()).ToList() : new List<ProductDto>()
             };
         }
@@ -24,6 +25,7 @@ namespace WebAPIServices.Mapers
             {
                 Name = categoryDto.Name,
                 Description = categoryDto.Description,
+                // Products property is not set in creation
             };
         }
 
@@ -31,8 +33,8 @@ namespace WebAPIServices.Mapers
         {
             category.Name = categoryDto.Name;
             category.Description = categoryDto.Description;
+            // Products property should not be modified during update
             return category;
-            
         }
     }
 }

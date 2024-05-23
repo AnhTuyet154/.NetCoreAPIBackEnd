@@ -10,5 +10,6 @@
         public string Color { get; set; }=string.Empty;
         public string Description { get; set; }=string.Empty ;
         public string Image { get; set; } = string.Empty;
+        public List<CartItem>? CartItems { get; set; }
     }
 }

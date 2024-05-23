@@ -1,22 +1,21 @@
-﻿global using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using WebAPIServices.Models;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Identity; // Import thư viện này
 
 namespace WebAPIServices.Data
 {
-    //public class DataContext :DbContext
-    //{
-    //    public DataContext(DbContextOptions<DataContext> options):base(options) { 
-    //    }
-
     public class DataContext : IdentityDbContext<Account>
     {
         public DataContext(DbContextOptions<DataContext> options)
             : base(options)
         { }
+
         public DbSet<Product> Products { get; set; }
         public DbSet<Category> Categories { get; set; }
+        public DbSet<CartItem> CartItems { get; set; }
+        public DbSet<Order> Orders { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -27,8 +26,24 @@ namespace WebAPIServices.Data
                 .WithOne(p => p.Category)
                 .HasForeignKey(p => p.CategoryId)
                 .OnDelete(DeleteBehavior.Restrict);
-            //.OnDelete(DeleteBehavior.SetNull);
-            //OnDelete(DeleteBehavior.Cascade)
+
+            modelBuilder.Entity<Product>()
+                .HasMany(p => p.CartItems)
+                .WithOne(c => c.Products)
+                .HasForeignKey(c => c.ProductId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<CartItem>()
+                .HasOne(c => c.Accounts)
+                .WithMany(a => a.CartItems)
+                .HasForeignKey(c => c.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Order>()
+                .HasOne(c => c.Accounts)
+                .WithMany(a => a.Orders)
+                .HasForeignKey(c => c.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             List<IdentityRole> roles = new List<IdentityRole>
             {
@@ -44,7 +59,6 @@ namespace WebAPIServices.Data
                 },
             };
             modelBuilder.Entity<IdentityRole>().HasData(roles);
-        
-    }
+        }
     }
 }

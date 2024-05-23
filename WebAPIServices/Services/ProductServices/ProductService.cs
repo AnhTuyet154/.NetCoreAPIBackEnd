@@ -1,7 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using WebAPIServices.Data;
 using WebAPIServices.Dto.Product;
-using WebAPIServices.Mapers;
+using WebAPIServices.Mappers;
 
 namespace WebAPIServices.Services.ProductServices
 {
@@ -18,6 +21,7 @@ namespace WebAPIServices.Services.ProductServices
         {
             var productList = await _context.Products
                 .Include(p => p.Category)
+                .Include(p => p.CartItems)
                 .Select(p => p.ToProductDto())
                 .ToListAsync();
 
@@ -28,6 +32,7 @@ namespace WebAPIServices.Services.ProductServices
         {
             var product = await _context.Products
                 .Include(p => p.Category)
+                .Include(p => p.CartItems)
                 .Where(p => p.Id == id)
                 .Select(p => p.ToProductDto())
                 .FirstOrDefaultAsync();

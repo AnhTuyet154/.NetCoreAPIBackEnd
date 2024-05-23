@@ -1,9 +1,12 @@
-﻿using WebAPIServices.Dto.Product;
+﻿using WebAPIServices.Dto.CartItem;
+using WebAPIServices.Dto.Product;
 using WebAPIServices.Models;
+using System.Linq;
+using System.Collections.Generic;
 
-namespace WebAPIServices.Mapers
+namespace WebAPIServices.Mappers
 {
-    public static class ProductMaper
+    public static class ProductMapper
     {
         public static ProductDto ToProductDto(this Product product)
         {
@@ -12,12 +15,11 @@ namespace WebAPIServices.Mapers
                 Id = product.Id,
                 Name = product.Name,
                 Price = product.Price,
-               // CategoryId = product.CategoryId,
                 CategoryName = product.Category?.Name,
                 Color = product.Color,
                 Image = product.Image,
-                Description = product.Description
-
+                Description = product.Description,
+                CartItems = product.CartItems != null ? product.CartItems.Select(c => c.ToCartItemDto()).ToList() : new List<CartItemDto>()
             };
         }
 
@@ -45,7 +47,5 @@ namespace WebAPIServices.Mapers
 
             return product;
         }
-
-
     }
 }

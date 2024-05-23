@@ -1,12 +1,12 @@
-﻿namespace WebAPIServices.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace WebAPIServices.Dto.CartItem
 {
-    public class CartItem
+    public class CartItemDto
     {
         public int Id { get; set; }
         public int Quantity { get; set; }
         public int? ProductId { get; set; }
-        public Product? Products { get; set; }
         public string? UserId { get; set; }
-        public Account? Accounts { get; set; }
     }
 }

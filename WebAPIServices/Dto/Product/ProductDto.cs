@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using WebAPIServices.Dto.CartItem;
+using WebAPIServices.Models;
 
 namespace WebAPIServices.Dto.Product
 {
@@ -13,5 +15,6 @@ namespace WebAPIServices.Dto.Product
         public string? Image { get; set; } = string.Empty;
 
         public string? Description { get; set; } = string.Empty;
+        public List<CartItemDto>? CartItems { get; set; }
     }
 }

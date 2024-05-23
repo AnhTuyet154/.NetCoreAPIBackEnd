@@ -1,6 +1,10 @@
-﻿using WebAPIServices.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using WebAPIServices.Data;
 using WebAPIServices.Dto.Category;
-using WebAPIServices.Mapers;
+using WebAPIServices.Mappers;
 
 namespace WebAPIServices.Services.CategoryServices
 {
@@ -16,7 +20,6 @@ namespace WebAPIServices.Services.CategoryServices
         public async Task<CategoryDto> AddCategoryAsync(CreateCategoryDto category)
         {
             var newCategory = category.ToCategoryFromCreateDTO();
-            //category.GetHashCode
             _context.Categories.Add(newCategory);
             await _context.SaveChangesAsync();
 
@@ -47,26 +50,19 @@ namespace WebAPIServices.Services.CategoryServices
         public async Task<CategoryDto> GetSingleCategoryAsync(int id)
         {
             var category = await _context.Categories
-                                        .Include(c => c.Products)
-                                        .FirstOrDefaultAsync(c => c.Id == id);
-            if (category != null)
-            {
-                return category.ToCategoryDto();
-            }
-            return null;
-        }
+                .Include(c => c.Products)
+                .FirstOrDefaultAsync(c => c.Id == id);
 
+            return category?.ToCategoryDto();
+        }
 
         public async Task<CategoryDto> UpdateCategoryAsync(int id, UpdateCategoryDto category)
         {
             var existingCategory = await _context.Categories.FindAsync(id);
             if (existingCategory != null)
             {
-                existingCategory.Name = category.Name;
-                existingCategory.Description = category.Description;
-
+                existingCategory = category.ToCategoryFromUpdateDTO(existingCategory);
                 await _context.SaveChangesAsync();
-
                 return existingCategory.ToCategoryDto();
             }
             return null;

@@ -8,6 +8,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using WebAPIServices.Services.AccountServices;
 using Microsoft.OpenApi.Models;
+using Microsoft.EntityFrameworkCore;
+using WebAPIServices.Services.CartItemServices;
+using WebAPIServices.Services.OrderServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -98,6 +101,8 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICategoryrService, CategoryService>();
+builder.Services.AddScoped<ICartItemService,CartItemService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
 
 //Addtransient, AddSingleton
 
