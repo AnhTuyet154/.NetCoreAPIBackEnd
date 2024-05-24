@@ -4,7 +4,7 @@ using WebAPIServices.Services.AccountServices;
 
 namespace api.Controllers
 {
-    [Route("api/account")]
+    [Route("api/Account")]
     [ApiController]
     public class AccountController : ControllerBase
     {

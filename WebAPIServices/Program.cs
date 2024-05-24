@@ -89,13 +89,17 @@ builder.Services.AddControllers().AddNewtonsoftJson(options =>
     options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
 });
 //Configure permission access base url of angular
-builder.Services.AddCors((setup) =>
+builder.Services.AddCors(options =>
 {
-    setup.AddPolicy("default", (options) =>
-    {
-        options.AllowAnyMethod().AllowAnyHeader().AllowAnyOrigin();
-    });
+    options.AddPolicy("AllowAngularDev",
+        builder =>
+        {
+            builder.WithOrigins("http://localhost:4200") // Update with your Angular app URL
+                   .AllowAnyHeader()
+                   .AllowAnyMethod();
+        });
 });
+
 
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
@@ -136,7 +140,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors("default");
+app.UseCors("AllowAngularDev");
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
