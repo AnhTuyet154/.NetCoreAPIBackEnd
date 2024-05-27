@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using WebAPIServices.Dto.Product;
 using WebAPIServices.Services.ProductServices;
 
@@ -32,7 +33,7 @@ namespace WebAPIServices.Controllers
             }
             return Ok(result);
         }
-
+        //[Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<ActionResult<List<ProductDto>>> AddProduct(CreateProductDto productDto)
         {
@@ -53,7 +54,7 @@ namespace WebAPIServices.Controllers
             }
             return Ok(result);
         }
-
+        //[Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public async Task<ActionResult<List<ProductDto>>> UpdateProduct(int id, UpdateProductDto productDto)
         {
@@ -74,7 +75,7 @@ namespace WebAPIServices.Controllers
             }
             return Ok(result);
         }
-
+        //[Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<ActionResult<List<ProductDto>>> DeleteProduct(int id)
         {

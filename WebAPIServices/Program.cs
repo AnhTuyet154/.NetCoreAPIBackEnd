@@ -47,10 +47,12 @@ builder.Services.AddSwaggerGen(option =>
         }
     });
 });
+
 builder.Services.AddDbContext<DataContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
+
 builder.Services.AddIdentity<Account, IdentityRole>(options =>
 {
     options.Password.RequireDigit = true;
@@ -59,7 +61,8 @@ builder.Services.AddIdentity<Account, IdentityRole>(options =>
     options.Password.RequireNonAlphanumeric = true;
     options.Password.RequiredLength = 12;
 })
-.AddEntityFrameworkStores<DataContext>();
+.AddEntityFrameworkStores<DataContext>()
+.AddDefaultTokenProviders();
 
 builder.Services.AddAuthentication(options =>
 {
@@ -69,7 +72,8 @@ builder.Services.AddAuthentication(options =>
     options.DefaultScheme =
     options.DefaultSignInScheme =
     options.DefaultSignOutScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(options =>
+})
+.AddJwtBearer(options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters
     {
@@ -88,6 +92,7 @@ builder.Services.AddControllers().AddNewtonsoftJson(options =>
 {
     options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
 });
+
 //Configure permission access base url of angular
 builder.Services.AddCors(options =>
 {
@@ -100,38 +105,55 @@ builder.Services.AddCors(options =>
         });
 });
 
-
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICategoryrService, CategoryService>();
-builder.Services.AddScoped<ICartItemService,CartItemService>();
+builder.Services.AddScoped<ICartItemService, CartItemService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 
 //Addtransient, AddSingleton
 
-
 var app = builder.Build();
 
+//// Thêm middleware Response Caching vào pipeline
+//app.UseResponseCaching();
 
-// Thêm middleware Response Caching vào pipeline
-app.UseResponseCaching();
+//// Configure the response cache middleware
+//app.Use(async (context, next) =>
+//{
+//    // Xác định các yêu cầu mà bạn muốn cache (ví dụ: tất cả các phản hồi thành công)
+//    if (context.Request.Method == HttpMethods.Get && context.Response.StatusCode == StatusCodes.Status200OK)
+//    {
+//        context.Response.GetTypedHeaders().CacheControl = new CacheControlHeaderValue
+//        {
+//            Public = true, // Cacheable by clients and shared (proxy caching)
+//            MaxAge = TimeSpan.FromMinutes(5) // Thời gian sống của cache
+//        };
+//    }
 
-// Configure the response cache middleware
-app.Use(async (context, next) =>
+//    await next();
+//});
+
+using (var scope = app.Services.CreateScope())
 {
-    // Xác định các yêu cầu mà bạn muốn cache (ví dụ: tất cả các phản hồi thành công)
-    if (context.Request.Method == HttpMethods.Get && context.Response.StatusCode == StatusCodes.Status200OK)
-    {
-        context.Response.GetTypedHeaders().CacheControl = new CacheControlHeaderValue
-        {
-            Public = true, // Cacheable by clients and shared (proxy caching)
-            MaxAge = TimeSpan.FromMinutes(5) // Thời gian sống của cache
-        };
-    }
+    var userManager =
+        scope.ServiceProvider.GetRequiredService<UserManager<Account>>();
 
-    await next();
-});
+    string email = "admin@gmail.com";
+    string password = "Admin@123456";
+    if (await userManager.FindByEmailAsync(email) == null)
+    {
+        var user = new Account(); // Change IdentityUser() to Account()
+        user.UserName = email;
+        user.Email = email;
+        user.EmailConfirmed = true;
+
+        await userManager.CreateAsync(user, password);
+
+        await userManager.AddToRoleAsync(user, "Admin");
+    }
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -139,7 +161,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
 app.UseCors("AllowAngularDev");
 app.UseHttpsRedirection();
 app.UseAuthentication();

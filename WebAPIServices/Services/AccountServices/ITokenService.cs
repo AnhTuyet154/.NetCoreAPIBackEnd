@@ -4,6 +4,6 @@ namespace WebAPIServices.Services.AccountServices
 {
     public interface ITokenService
     {
-        string CreateToken(Account account);
+        string CreateToken(Account account, string userRole);
     }
 }
