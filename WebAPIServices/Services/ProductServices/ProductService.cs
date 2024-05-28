@@ -40,8 +40,9 @@ namespace WebAPIServices.Services.ProductServices
                     productList = query.isDecsending ? productList.OrderByDescending(s=>s.Price) : productList.OrderBy(s=>s.Price);
                 }
             }
+            var skipNumber = (query.PageNumber-1)*query.PageSize;
 
-            var products = await productList.ToListAsync();
+            var products = await productList.Skip(skipNumber).Take(query.PageSize).ToListAsync();
             return products.Select(p => p.ToProductDto()).ToList();
         }
 
