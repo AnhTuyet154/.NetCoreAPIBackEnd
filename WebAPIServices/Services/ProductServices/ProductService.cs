@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using WebAPIServices.Data;
 using WebAPIServices.Dto.Product;
+using WebAPIServices.Helper;
 using WebAPIServices.Mappers;
 
 namespace WebAPIServices.Services.ProductServices
@@ -17,15 +18,32 @@ namespace WebAPIServices.Services.ProductServices
             _context = context;
         }
 
-        public async Task<List<ProductDto>> GetAllProductsAsync()
+        public async Task<List<ProductDto>> GetAllProductsAsync(QueryObject query)
         {
-            var productList = await _context.Products
+            var productList = _context.Products
                 .Include(p => p.Category)
                 .Include(p => p.CartItems)
-                .Select(p => p.ToProductDto())
-                .ToListAsync();
+                .AsQueryable();
 
-            return productList;
+            if (!string.IsNullOrWhiteSpace(query.ProductName))
+            {
+                productList = productList.Where(p => p.Name == query.ProductName);
+            }
+
+            if (!string.IsNullOrWhiteSpace(query.CategoryName))
+            {
+                productList = productList.Where(p => p.Category.Name.Contains(query.CategoryName));
+            }
+            if (!string.IsNullOrWhiteSpace(query.SortBy))
+            {
+                if(query.SortBy.Equals("Price", StringComparison.OrdinalIgnoreCase)){
+                    productList = query.isDecsending ? productList.OrderByDescending(s=>s.Price) : productList.OrderBy(s=>s.Price);
+                }
+            }
+            var skipNumber = (query.PageNumber-1)*query.PageSize;
+
+            var products = await productList.Skip(skipNumber).Take(query.PageSize).ToListAsync();
+            return products.Select(p => p.ToProductDto()).ToList();
         }
 
         public async Task<ProductDto> GetSingleProductAsync(int id)
@@ -34,13 +52,12 @@ namespace WebAPIServices.Services.ProductServices
                 .Include(p => p.Category)
                 .Include(p => p.CartItems)
                 .Where(p => p.Id == id)
-                .Select(p => p.ToProductDto())
                 .FirstOrDefaultAsync();
 
-            return product;
+            return product?.ToProductDto();
         }
 
-        public async Task<List<ProductDto>> DeleteProductAsync(int id)
+        public async Task<List<ProductDto>> DeleteProductAsync(int id, QueryObject query)
         {
             var product = await _context.Products.FindAsync(id);
             if (product != null)
@@ -48,10 +65,11 @@ namespace WebAPIServices.Services.ProductServices
                 _context.Products.Remove(product);
                 await _context.SaveChangesAsync();
             }
-            return await GetAllProductsAsync();
+            return await GetAllProductsAsync(query);
         }
 
-        public async Task<List<ProductDto>> AddProductAsync(CreateProductDto productDto)
+
+        public async Task<ProductDto> AddProductAsync(CreateProductDto productDto)
         {
             if (productDto.CategoryId == null)
             {
@@ -68,10 +86,10 @@ namespace WebAPIServices.Services.ProductServices
 
             _context.Products.Add(newProduct);
             await _context.SaveChangesAsync();
-            return await GetAllProductsAsync();
+            return newProduct.ToProductDto();
         }
 
-        public async Task<List<ProductDto>> UpdateProductAsync(int id, UpdateProductDto productDto)
+        public async Task<ProductDto> UpdateProductAsync(int id, UpdateProductDto productDto)
         {
             var product = await _context.Products.FindAsync(id);
             if (product == null)
@@ -93,7 +111,7 @@ namespace WebAPIServices.Services.ProductServices
             product = productDto.ToProductFromUpdate(product, productDto.CategoryId.Value);
 
             await _context.SaveChangesAsync();
-            return await GetAllProductsAsync();
+            return product.ToProductDto();
         }
     }
 }
