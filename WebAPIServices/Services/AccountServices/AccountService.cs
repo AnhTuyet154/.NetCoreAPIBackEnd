@@ -37,16 +37,20 @@ namespace WebAPIServices.Services.AccountServices
                 if (!roleResult.Succeeded)
                     throw new Exception("Failed to add role");
 
+                // Set the default role to "User"
+                string userRole = "User";
+
                 return new NewAccountDto
                 {
                     UserName = appUser.UserName,
                     Email = appUser.Email,
-                    Token = _tokenService.CreateToken(appUser)
+                    Token = _tokenService.CreateToken(appUser, userRole) // Pass the userRole parameter
                 };
             }
 
             throw new Exception(string.Join(", ", createdUser.Errors));
         }
+
 
         public async Task<NewAccountDto> LoginAsync(LoginDto loginDto)
         {
@@ -61,13 +65,17 @@ namespace WebAPIServices.Services.AccountServices
 
             if (!result.Succeeded) throw new UnauthorizedAccessException("Username not found and/or password incorrect");
 
+            var roles = await _userManager.GetRolesAsync(user);
+            string userRole = roles.FirstOrDefault(); // Lấy vai trò của người dùng
+
             return new NewAccountDto
             {
                 UserName = user.UserName,
                 Email = user.Email,
-                Token = _tokenService.CreateToken(user)
+                Token = _tokenService.CreateToken(user, userRole) // Truyền vai trò vào phương thức CreateToken
             };
         }
-    }
 
+    }
 }
+    

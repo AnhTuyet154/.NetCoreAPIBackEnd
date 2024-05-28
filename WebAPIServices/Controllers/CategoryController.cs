@@ -35,7 +35,7 @@ namespace WebAPIServices.Controllers
             return Ok(category);
         }
 
-
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<ActionResult<CategoryDto>> AddCategory(CreateCategoryDto categoryDto)
         {
@@ -48,7 +48,7 @@ namespace WebAPIServices.Controllers
             return Ok(addedCategory);
 
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public async Task<ActionResult<CategoryDto>> UpdateCategory(int id, UpdateCategoryDto categoryDto)
         {
@@ -66,7 +66,7 @@ namespace WebAPIServices.Controllers
             return Ok(updatedCategory);
         }
 
-
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<ActionResult<List<CategoryDto>>> DeleteCategory(int id)
         {

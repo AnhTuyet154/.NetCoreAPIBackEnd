@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using WebAPIServices.Dto.Product;
+using WebAPIServices.Helper;
 using WebAPIServices.Services.ProductServices;
 
 namespace WebAPIServices.Controllers
@@ -16,9 +18,9 @@ namespace WebAPIServices.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<ProductDto>>> GetAllProducts()
+        public async Task<ActionResult<List<ProductDto>>> GetAllProducts([FromQuery] QueryObject query)
         {
-            var products = await _productService.GetAllProductsAsync();
+            var products = await _productService.GetAllProductsAsync(query);
             return Ok(products);
         }
 
@@ -33,8 +35,9 @@ namespace WebAPIServices.Controllers
             return Ok(result);
         }
 
+        //[Authorize(Roles = "Admin")]
         [HttpPost]
-        public async Task<ActionResult<List<ProductDto>>> AddProduct(CreateProductDto productDto)
+        public async Task<ActionResult<ProductDto>> AddProduct([FromBody] CreateProductDto productDto)
         {
             if (!ModelState.IsValid)
             {
@@ -54,8 +57,9 @@ namespace WebAPIServices.Controllers
             return Ok(result);
         }
 
+        //[Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
-        public async Task<ActionResult<List<ProductDto>>> UpdateProduct(int id, UpdateProductDto productDto)
+        public async Task<ActionResult<ProductDto>> UpdateProduct(int id, [FromBody] UpdateProductDto productDto)
         {
             if (!ModelState.IsValid)
             {
@@ -75,10 +79,11 @@ namespace WebAPIServices.Controllers
             return Ok(result);
         }
 
+        //[Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
-        public async Task<ActionResult<List<ProductDto>>> DeleteProduct(int id)
+        public async Task<ActionResult<ProductDto>> DeleteProduct(int id, [FromQuery] QueryObject query)
         {
-            var result = await _productService.DeleteProductAsync(id);
+            var result = await _productService.DeleteProductAsync(id, query);
             if (result == null)
             {
                 return NotFound("Product not found");
