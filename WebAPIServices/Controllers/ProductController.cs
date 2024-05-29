@@ -34,7 +34,7 @@ namespace WebAPIServices.Controllers
             }
             return Ok(result);
         }
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<ActionResult<ProductDto>> AddProduct([FromBody] CreateProductDto productDto)
         {
@@ -55,7 +55,7 @@ namespace WebAPIServices.Controllers
             }
             return Ok(result);
         }
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public async Task<ActionResult<ProductDto>> UpdateProduct(int id, [FromBody] UpdateProductDto productDto)
         {
@@ -76,7 +76,7 @@ namespace WebAPIServices.Controllers
             }
             return Ok(result);
         }
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<ActionResult<ProductDto>> DeleteProduct(int id, [FromQuery] QueryObject query)
         {

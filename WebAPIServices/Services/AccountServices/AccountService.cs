@@ -44,7 +44,8 @@ namespace WebAPIServices.Services.AccountServices
                 {
                     UserName = appUser.UserName,
                     Email = appUser.Email,
-                    Token = _tokenService.CreateToken(appUser, userRole) // Pass the userRole parameter
+                    Token = _tokenService.CreateToken(appUser, userRole),
+                    Role = userRole// Pass the userRole parameter
                 };
             }
 
@@ -59,11 +60,13 @@ namespace WebAPIServices.Services.AccountServices
 
             var user = await _userManager.Users.FirstOrDefaultAsync(x => x.UserName == loginDto.Username.ToLower());
 
-            if (user == null) throw new UnauthorizedAccessException("Invalid username!");
+            if (user == null)
+                throw new UnauthorizedAccessException("Invalid username!");
 
             var result = await _signInManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
 
-            if (!result.Succeeded) throw new UnauthorizedAccessException("Username not found and/or password incorrect");
+            if (!result.Succeeded)
+                throw new UnauthorizedAccessException("Username not found and/or password incorrect");
 
             var roles = await _userManager.GetRolesAsync(user);
             string userRole = roles.FirstOrDefault(); // Lấy vai trò của người dùng
@@ -72,7 +75,8 @@ namespace WebAPIServices.Services.AccountServices
             {
                 UserName = user.UserName,
                 Email = user.Email,
-                Token = _tokenService.CreateToken(user, userRole) // Truyền vai trò vào phương thức CreateToken
+                Token = _tokenService.CreateToken(user, userRole), // Truyền vai trò vào phương thức CreateToken
+                Role = userRole // Gán giá trị cho thuộc tính Role
             };
         }
 
